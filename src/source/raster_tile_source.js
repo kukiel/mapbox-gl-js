@@ -94,6 +94,47 @@ class RasterTileSource extends Evented implements Source {
         this.load();
     }
 
+    setSourceProperty(callback: Function) {
+        if (this._tileJSONRequest) {
+            this._tileJSONRequest.cancel();
+        }
+
+        callback();
+
+        const sourceCache = this.map.style.sourceCaches[this.id];
+        sourceCache.clearTiles();
+        this.load();
+    }
+
+    /**
+     * Sets the source `tiles` property and re-renders the map.
+     *
+     * @param {string[]} tiles An array of one or more tile source URLs, as in the TileJSON spec.
+     * @returns {VectorTileSource} this
+     */
+    setTiles(tiles: Array<string>) {
+        this.setSourceProperty(() => {
+            this._options.tiles = tiles;
+        });
+
+        return this;
+    }
+
+    /**
+     * Sets the source `url` property and re-renders the map.
+     *
+     * @param {string} url A URL to a TileJSON resource. Supported protocols are `http:`, `https:`, and `mapbox://<Tileset ID>`.
+     * @returns {VectorTileSource} this
+     */
+    setUrl(url: string) {
+        this.setSourceProperty(() => {
+            this.url = url;
+            this._options.url = url;
+        });
+
+        return this;
+    }
+
     onRemove() {
         if (this._tileJSONRequest) {
             this._tileJSONRequest.cancel();
